@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\PixelController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,4 +34,9 @@ Route::prefix('carmodels')->group(function () {
     Route::get('/{carModel}', [CarModelController::class, 'show'])->name('carmodels.show');
     Route::put('/{carModel}', [CarModelController::class, 'update'])->name('carmodels.update');
     Route::delete('/{carModel}', [CarModelController::class, 'destroy'])->name('carmodels.destroy');
+})->middleware('auth:sanctum');
+
+Route::prefix('pixels')->group(function () {
+    Route::get('/', [PixelController::class, 'index'])->name('pixels.index');
+    Route::post('/', [PixelController::class, 'update'])->name('pixels.update');
 })->middleware('auth:sanctum');
