@@ -6,7 +6,6 @@
 
     <title>Laravel</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet"/>
     @vite('resources/css/app.css')
@@ -19,20 +18,21 @@
 
 </head>
 <body>
+<h1 class="text-2xl font-bold mb-4">Pixel War</h1>
 <div id="app" class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Pixel War</h1>
-    <div id="canvas" class="grid grid-cols-100 gap-1"></div>
+    <div id="canvas" class="border border-gray-300 max-w-xl">
+        @for ($i = 0; $i < 32; $i++)
+            <div class="flex">
+                @for ($j = 0; $j < 32; $j++)
+                    <div id="pixel-{{ $i }}-{{ $j }}" class="pixel w-6 h-6 border border-gray-300"></div>
+                @endfor
+            </div>
+        @endfor
+    </div>
 </div>
 
 <script>
     $(document).ready(function () {
-        let canvas = $('#canvas');
-        for (let i = 0; i < 100; i++) {
-            for (let j = 0; j < 100; j++) {
-                canvas.append(`<div id="pixel-${i}-${j}" class="w-4 h-4 border border-gray-200"></div>`);
-            }
-        }
-
         $.get('/api/pixels', function (pixels) {
             pixels.forEach(pixel => {
                 $(`#pixel-${pixel.x}-${pixel.y}`).css('background-color', pixel.color);
@@ -53,18 +53,16 @@
                 });
             }
         });
-        
+
         Pusher.logToConsole = true;
 
         const pusher = new Pusher('9aece9ab9ee6d80b3fff', {
             cluster: 'eu'
         });
 
-        var channel = pusher.subscribe('pixels');
-        channel.bind('App\\Events\\PixelUpdated', function(e) {
-            console.log("event 2", e);
+        const channel = pusher.subscribe('pixels');
+        channel.bind('App\\Events\\PixelUpdated', function (e) {
             $(`#pixel-${e.pixel.x}-${e.pixel.y}`).css('background-color', e.pixel.color);
-
         });
     });
 </script>

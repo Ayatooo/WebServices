@@ -21,8 +21,6 @@ class PixelController extends Controller
             ['color' => $request->color]
         );
 
-//        broadcast(new PixelUpdated($pixel))->toOthers();
-//        event(new MyEvent('hello world'));
         event(new PixelUpdated($pixel));
 
         return response()->json($pixel, 200);
