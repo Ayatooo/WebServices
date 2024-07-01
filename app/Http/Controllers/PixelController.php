@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MyEvent;
+use App\Events\PixelUpdated;
 use App\Models\Pixel;
 use Illuminate\Http\Request;
 
@@ -18,6 +20,10 @@ class PixelController extends Controller
             ['x' => $request->x, 'y' => $request->y],
             ['color' => $request->color]
         );
+
+//        broadcast(new PixelUpdated($pixel))->toOthers();
+//        event(new MyEvent('hello world'));
+        event(new PixelUpdated($pixel));
 
         return response()->json($pixel, 200);
     }

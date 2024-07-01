@@ -10,8 +10,12 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet"/>
     @vite('resources/css/app.css')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @vite('resources/js/app.js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Styles -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
 </head>
 <body>
@@ -20,7 +24,6 @@
     <div id="canvas" class="grid grid-cols-100 gap-1"></div>
 </div>
 
-<script src="{{ mix('js/app.js') }}"></script>
 <script>
     $(document).ready(function () {
         let canvas = $('#canvas');
@@ -30,20 +33,38 @@
             }
         }
 
-        // Load initial pixel data
         $.get('/api/pixels', function (pixels) {
             pixels.forEach(pixel => {
                 $(`#pixel-${pixel.x}-${pixel.y}`).css('background-color', pixel.color);
             });
         });
 
-        // Handle pixel click
         $('#canvas').on('click', 'div', function () {
             let [_, x, y] = this.id.split('-');
-            let color = prompt('Enter color:');
-            $.post('/api/pixels', {x: x, y: y, color: color, _token: '{{ csrf_token() }}'}, function (pixel) {
-                $(`#pixel-${pixel.x}-${pixel.y}`).css('background-color', pixel.color);
-            });
+            let color = prompt('Color:');
+            if (color) {
+                $.post('/api/pixels', {
+                    x: x,
+                    y: y,
+                    color: color,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                }, function (pixel) {
+                    $(`#pixel-${pixel.x}-${pixel.y}`).css('background-color', pixel.color);
+                });
+            }
+        });
+        
+        Pusher.logToConsole = true;
+
+        const pusher = new Pusher('9aece9ab9ee6d80b3fff', {
+            cluster: 'eu'
+        });
+
+        var channel = pusher.subscribe('pixels');
+        channel.bind('App\\Events\\PixelUpdated', function(e) {
+            console.log("event 2", e);
+            $(`#pixel-${e.pixel.x}-${e.pixel.y}`).css('background-color', e.pixel.color);
+
         });
     });
 </script>
