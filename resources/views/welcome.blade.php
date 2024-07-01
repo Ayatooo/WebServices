@@ -20,11 +20,16 @@
 <body>
 <h1 class="text-2xl font-bold mb-4">Pixel War</h1>
 <div id="app" class="container mx-auto p-4">
+{{--    color picker--}}
+    <div class="flex items-center mb-4">
+        <div class="mr-4">Color:</div>
+        <input type="color" id="color" value="#000000">
+    </div>
     <div id="canvas" class="border border-gray-300 max-w-xl">
         @for ($i = 0; $i < 32; $i++)
             <div class="flex">
                 @for ($j = 0; $j < 32; $j++)
-                    <div id="pixel-{{ $i }}-{{ $j }}" class="pixel w-6 h-6 border border-gray-300"></div>
+                    <div id="pixel-{{ $i }}-{{ $j }}" class="pixel w-6 h-6"></div>
                 @endfor
             </div>
         @endfor
@@ -41,7 +46,7 @@
 
         $('#canvas').on('click', 'div', function () {
             let [_, x, y] = this.id.split('-');
-            let color = prompt('Color:');
+            let color = $('#color').val();
             if (color) {
                 $.post('/api/pixels', {
                     x: x,
